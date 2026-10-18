@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ev
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in backend/.env}
+      POSTGRES_DB: evdiag
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ev -d evdiag"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://ev:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in backend/.env}@127.0.0.1:5432/evdiag
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in backend/.env}
+      BOOTSTRAP_ADMIN_TOKEN: ${BOOTSTRAP_ADMIN_TOKEN:?Set BOOTSTRAP_ADMIN_TOKEN in backend/.env}
+      VCI_CHANNEL: ${VCI_CHANNEL:-can0}
+      VCI_CAN_FD: ${VCI_CAN_FD:-0}
+      VCI_SIMULATED: ${VCI_SIMULATED:-0}
+      UVICORN_HOST: ${API_BIND:-127.0.0.1}
+    network_mode: host
+    depends_on:
+      db:
+        condition: service_healthy

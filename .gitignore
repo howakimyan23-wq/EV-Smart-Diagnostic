@@ -1,0 +1,9 @@
+.env
+backend/.env
+backend/.venv/
+backend/*.db
+backend/*.db-*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage

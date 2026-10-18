@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EV Smart Diagnostic</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f1;--sf:#fff;--ink:#10231f;--mut:#5b6f6a;--ac:#0a7c66;--acs:#d6efe9;--wn:#8a4b00;--wns:#fff1d6;--er:#b3261e;--ers:#fde4e2;--bd:#cfdad7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a17;--sf:#162723;--ink:#e6f1ee;--mut:#9bb2ac;--ac:#4fd1b5;--acs:#17403a;--wn:#ffc36b;--wns:#3a2c10;--er:#ff8a80;--ers:#3d1a17;--bd:#2c433e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1a17;--sf:#162723;--ink:#e6f1ee;--mut:#9bb2ac;--ac:#4fd1b5;--acs:#17403a;--wn:#ffc36b;--wns:#3a2c10;--er:#ff8a80;--ers:#3d1a17;--bd:#2c433e;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Noto Sans Armenian",system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:14px 16px 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+h1{font-size:20px;margin:0;letter-spacing:-.2px}
+h2{font-size:17px;margin:0 0 8px}
+.sub{color:var(--mut);font-size:13px}
+.lang button{border:1px solid var(--bd);background:var(--sf);color:var(--ink);padding:6px 10px;font:inherit;font-size:13px;cursor:pointer}
+.lang button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.banner{margin:0 16px 8px;padding:10px 12px;border-left:4px solid var(--wn);background:var(--wns);color:var(--wn);font-size:14px}
+.banner.real{border-color:var(--ac);background:var(--acs);color:var(--ink)}
+nav{display:flex;overflow-x:auto;gap:4px;padding:4px 16px 8px;scrollbar-width:none;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+nav button{flex:0 0 auto;border:0;border-bottom:3px solid transparent;background:none;color:var(--mut);padding:8px 10px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--ink);border-color:var(--ac);font-weight:700}
+nav button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+main{padding:8px 16px 32px;max-width:760px;margin:0 auto}
+.box{background:var(--sf);border:1px solid var(--bd);padding:14px;margin-bottom:12px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+input,select{width:100%;padding:10px;border:1px solid var(--bd);background:var(--bg);color:var(--ink);font:inherit}
+.btn{border:0;background:var(--ac);color:#fff;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;margin-top:10px}
+.btn.alt{background:none;color:var(--ac);border:1px solid var(--ac)}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;font-weight:600}
+.sim{background:var(--wns);color:var(--wn)}.ver{background:var(--acs);color:var(--ink)}.bad{background:var(--ers);color:var(--er)}
+.row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.row:last-child{border:0}
+.big{font-size:28px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.cell{background:var(--bg);padding:10px}
+.cells{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px}
+.cells i{background:var(--ac);display:block}
+.empty{color:var(--mut);padding:8px 0}
+.warn{border-left:4px solid var(--er);background:var(--ers);padding:10px 12px;font-size:14px;margin-bottom:12px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd);white-space:nowrap}
+pre{white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;margin:0}
+:root:root:root{--bg:#09090b;--sf:#131316;--ink:#f4f4f5;--mut:#9b9ba5;--ac:#e5233a;--acs:#2a0d12;--wn:#6cb8ff;--wns:#0d2034;--er:#ff6b7a;--ers:#2f1015;--bd:#2b2b32;--gr:#2ee59d;--bl:#3aa0ff;color-scheme:dark}
+body{background:radial-gradient(1200px 500px at 50% -150px,#2a0a10,transparent),var(--bg)}
+h1::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gr);margin-right:8px;animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #2ee59d99}70%,100%{box-shadow:0 0 0 9px transparent}}
+.btn{box-shadow:0 0 14px #e5233a66;transition:transform .15s}.btn:active{transform:scale(.96)}.btn.alt{background:none;box-shadow:none;color:var(--ac)}
+.box{border-top:2px solid var(--ac)}
+main.in .box{animation:rise .45s both}main.in .box:nth-child(2){animation-delay:.08s}main.in .box:nth-child(3){animation-delay:.16s}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.tag.ver{background:#0b2e22;color:var(--gr)}.tag.sim{background:#0d2034;color:var(--bl)}.tag.bad{background:#2f1015;color:var(--er)}
+.cell{border-left:3px solid var(--bl)}.cell:nth-child(3n+1){border-color:var(--gr)}.cell:nth-child(3n){border-color:var(--ac)}
+.cells i{background:var(--gr);transform-origin:bottom}.cells i:nth-child(3n){background:var(--bl)}main.in .cells i{animation:grow .7s both}
+@keyframes grow{from{transform:scaleY(0)}}
+.tap{cursor:pointer}.tap:hover b{color:var(--ac)}
+.rings{display:flex;gap:16px;justify-content:space-around;flex-wrap:wrap;text-align:center;margin-top:8px}
+.ring{width:110px;height:110px}.ring circle{fill:none;stroke-width:9;stroke-linecap:round}.ring .bg{stroke:var(--bd)}.ring .fg{stroke-dasharray:264}
+main.in .ring .fg{animation:fill 1.2s ease-out both}@keyframes fill{from{stroke-dashoffset:264}}
+.ring text{fill:var(--ink);font:700 22px "Noto Sans Armenian",sans-serif;text-anchor:middle}
+.modal{position:fixed;inset:0;background:#000c;display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}.modal[hidden]{display:none}
+.modal .box{width:100%;max-width:420px;animation:pop .25s both}@keyframes pop{from{opacity:0;transform:scale(.92)}}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>EV Smart Diagnostic</h1><div class="sub" id="tag"></div></div>
+  <div class="lang"><button id="hy">ՀԱՅ</button><button id="en">EN</button></div>
+</header>
+<div id="banner" class="banner"></div>
+<nav id="nav"></nav>
+<main id="view"></main>
+<div id="modal" class="modal" hidden></div>
+<script>
+const T={
+hy:{tag:"Էլեկտրական և հիբրիդային մեքենաների ախտորոշում",
+demoOn:"ԴԵՄՈ ՌԵԺԻՄ. բոլոր թվերը սիմուլյացիա են, ոչ թե իրական մեքենայից։",
+demoOff:"Իրական ռեժիմ. VCI դեռ միացված չէ, ուստի տվյալներ չկան (Փուլ 4–6)։",
+tabs:{home:"Վահանակ",veh:"Մեքենա",con:"Կապ",dtc:"Սխալի կոդեր",live:"Կենդանի տվյալներ",bat:"Մարտկոց",ai:"AI",rep:"Հաշվետվություն",cmp:"Համատեղելիություն"},
+demo:"Դեմո ռեժիմ",on:"Միացված",off:"Անջատված",
+make:"Արտադրող",model:"Մոդել",year:"Տարի",vin:"VIN (17 նիշ)",chk:"Ստուգել VIN-ը",
+vinOk:"VIN-ը համապատասխանում է 17 նիշի ձևաչափին։ Սա մեքենան չի նույնականացնում, իսկ ստուգիչ թվի կանոնները կախված են շուկայից։",
+vinBad:"VIN-ի ձևաչափը անվավեր է (պետք է լինի 17 նիշ, առանց I/O/Q տառերի)։",
+vinNote:"Մեքենան կհամարվի նույնականացված միայն VCI-ից ստացված իրական VIN-ով։ Առայժմ ընտրությունը ձեռքով է։",
+selected:"Ընտրված",none:"Չընտրված",
+vci:"VCI կարգավիճակ",notconn:"Չի միացված",connected:"Միացված է",gw:"Միացումը կատարվում է տեղական backend-ի միջոցով։",
+scan:"Սկանավորել ԷԿՄ-ները",simEcu:"Սիմուլյացված ԷԿՄ ցանկ",login:"Մուտք գործել",register:"Գրանցվել որպես viewer",logout:"Դուրս գալ",email:"Էլ. փոստ",password:"Գաղտնաբառ",checkVci:"Ստուգել VCI-ն",connectVci:"Միացնել PCAN VCI",disconnectVci:"Անջատել VCI-ն",saveVehicle:"Պահպանել մեքենան",realScan:"Կարդալ OBD-II տվյալները",signedIn:"Մուտք գործած դեր",vehicleSaved:"Մեքենան պահպանվեց",needVehicle:"Նախ պահպանեք մեքենան։",authHint:"Գրանցումը ստեղծում է viewer օգտատեր։ VCI գործողությունների համար պահանջվում է admin կամ technician դեր։",noEcus:"ECU պատասխաններ չկան։",realDtc:"Իրական OBD-II DTC պատասխաններ",realData:"Իրական OBD-II տվյալներ",
+noReal:"Իրական տվյալներ չկան. միացրեք համատեղելի VCI կամ միացրեք դեմո ռեժիմը։",
+dtcH:"Սխալի կոդեր (դեմո)",dtcNote:"Կոդերը SAE ընդհանուր P0Axx-ներ են. դեմոյում դրանք պատահական օրինակներ են։",
+live:"Կենդանի տվյալներ",soc:"SOC",pack:"Փաթեթի լարում",cur:"Հոսանք",tmp:"Ջերմաստիճան",v12:"12V համակարգ",inv:"Ինվերտորի ջերմ.",chg:"Լիցքավորման հզորություն",regen:"Ռեգեն արգելակ",
+cells:"Բջիջների լարումներ (դեմո)",soh:"SOH",
+hv:"ԸՆԴՀԱՆՈՒՐ ԱՆՎՏԱՆԳՈՒԹՅՈՒՆ. բարձր լարման համակարգը կարող է մահացու լինել։ Այս հավելվածը միայն կարդում է. HV լարերին չդիպչեք առանց ուսուցման և ձեռնարկի։",
+aiH:"AI վերլուծություն (դեմո, կանոնների վրա հիմնված)",conf:"Հաստատված",hyp:"Վարկած",nextT:"Անհրաժեշտ լրացուցիչ թեստեր",
+aiNote:"AI-ն երբեք չի հորինում չափումներ կամ տեխնիկական բնութագրեր։ Իրական ռեժիմում վերլուծություն կլինի միայն ստուգված տվյալների վրա։",
+repH:"Հաշվետվություն",gen:"Ստեղծել հաշվետվություն",hist:"Սպասարկման պատմություն",histNone:"Պատմություն դեռ չկա (պահպանումը՝ Փուլ 2, տվյալների բազա)։",
+cmpH:"Համատեղելիության ճանապարհային քարտեզ",cmpNote:"Բոլոր տողերը «չստուգված» են։ Աջակցությունը կնշվի միայն իրական VCI-ով և լիցենզավորված ծրագրով փորձարկումից հետո։",
+mk:"Արտադրող",st:"Կարգավիճակ",unv:"Չստուգված",stage:"Փուլ"},
+en:{tag:"EV & hybrid diagnostics",
+demoOn:"DEMO MODE: every number is simulated, not from a real vehicle.",
+demoOff:"Real mode: no VCI connected yet, so there is no data (Stages 4–6).",
+tabs:{home:"Dashboard",veh:"Vehicle",con:"Connection",dtc:"Trouble codes",live:"Live data",bat:"Battery",ai:"AI",rep:"Report",cmp:"Compatibility"},
+demo:"Demo mode",on:"On",off:"Off",
+make:"Manufacturer",model:"Model",year:"Year",vin:"VIN (17 characters)",chk:"Check VIN",
+vinOk:"VIN has the 17-character format. This does not identify the vehicle; check-digit rules vary by market.",
+vinBad:"VIN format is invalid (must be 17 characters and must not contain I/O/Q).",
+vinNote:"A vehicle counts as identified only with a real VIN read through a VCI. For now selection is manual.",
+selected:"Selected",none:"None selected",
+vci:"VCI status",notconn:"Not connected",connected:"Connected",gw:"Connection is provided by the local backend.",
+scan:"Scan ECUs",simEcu:"Simulated ECU list",login:"Sign in",register:"Register viewer",logout:"Sign out",email:"Email",password:"Password",checkVci:"Check VCI",connectVci:"Connect PCAN VCI",disconnectVci:"Disconnect VCI",saveVehicle:"Save vehicle",realScan:"Read OBD-II data",signedIn:"Signed-in role",vehicleSaved:"Vehicle saved",needVehicle:"Save the vehicle first.",authHint:"Registration creates a viewer account. VCI actions require the admin or technician role.",noEcus:"No ECU responses.",realDtc:"Vehicle OBD-II DTC responses",realData:"Vehicle OBD-II data",
+noReal:"No real data. Connect a compatible VCI or turn on demo mode.",
+dtcH:"Trouble codes (demo)",dtcNote:"Codes are generic SAE P0Axx; in the demo they are arbitrary examples.",
+live:"Live data",soc:"SOC",pack:"Pack voltage",cur:"Current",tmp:"Temperature",v12:"12V system",inv:"Inverter temp.",chg:"Charging power",regen:"Regen braking",
+cells:"Cell voltages (demo)",soh:"SOH",
+hv:"SAFETY: high voltage can kill. This app is read-only. Never touch HV cables without training and the manufacturer procedure.",
+aiH:"AI analysis (demo, rule-based)",conf:"Confirmed",hyp:"Hypothesis",nextT:"Additional tests needed",
+aiNote:"The AI never invents measurements or specifications. In real mode it will analyze only verified data.",
+repH:"Report",gen:"Generate report",hist:"Service history",histNone:"No history yet (storage arrives in Stage 2, database).",
+cmpH:"Compatibility roadmap",cmpNote:"Every row is unverified. Support is listed only after testing with a real VCI and authorized software.",
+mk:"Manufacturer",st:"Status",unv:"Unverified",stage:"Stage"}
+};
+const MAKES=["Tesla","BYD","Deepal / Changan","NIO","XPeng","Li Auto","Zeekr","Geely","Xiaomi","AITO / Seres","Volkswagen","BMW","Mercedes-Benz","Audi","Porsche","Hyundai","Kia","Toyota","Nissan","Honda","Ford","Chevrolet","Renault","Volvo","Polestar"];
+const S={lang:"hy",tab:"home",anim:true,demo:true,make:"",model:"",year:"",vin:"",vinMsg:"",ecu:false,rep:false,tick:0,apiToken:sessionStorage.getItem("evsdToken")||"",apiRole:sessionStorage.getItem("evsdRole")||"",apiMessage:"",vciConnected:false,vehicleId:null,realScan:null};
+const t=k=>T[S.lang][k];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+async function apiRequest(path,options={}){
+  const headers={...(S.apiToken?{Authorization:`Bearer ${S.apiToken}`}:{})};
+  if(options.body)headers["Content-Type"]="application/json";
+  const response=await fetch(path,{...options,headers});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.detail||`HTTP ${response.status}`);
+  return data;
+}
+function vinValid(v){
+  return /^[A-HJ-NPR-Z0-9]{17}$/.test(v);
+}
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const noReal=()=>`<div class="box"><div class="empty">${t("noReal")}</div></div>`;
+const simTag=()=>`<span class="tag sim">${S.lang==="hy"?"ՍԻՄՈՒԼՅԱՑԻԱ":"SIMULATED"}</span>`;
+
+function ring(p,txt,col){return `<div><svg class="ring" viewBox="0 0 110 110"><circle class="bg" cx="55" cy="55" r="42"/><circle class="fg" cx="55" cy="55" r="42" style="stroke:${col};stroke-dashoffset:${(264*(1-p/100)).toFixed(0)}" transform="rotate(-90 55 55)"/><text x="55" y="63">${p}%</text></svg><div class="sub">${txt}</div></div>`}
+function modal(c,d){const m=$("modal");m.hidden=false;m.innerHTML=`<div class="box"><div class="big" style="color:var(--ac)">${esc(c)}</div><p>${esc(d)}</p>${simTag()}<p class="sub">${t("dtcNote")}</p>${c==="P0AA6"?`<div class="warn">${t("hv")}</div>`:""}<button class="btn" id="mx">✕</button></div>`;$("mx").onclick=()=>{m.hidden=true};m.onclick=e=>{if(e.target===m)m.hidden=true}}
+const V={
+home(){
+  const d=S.demo;
+  const tile=(l,v)=>`<div class="cell"><div class="sub">${l}</div><div style="font-weight:700">${v}</div></div>`;
+  return `<div class="box"><h2>${t("tabs").home}</h2><div class="grid">
+  ${tile("VCI",`<span class="tag ${S.vciConnected?"ver":"bad"}">${S.vciConnected?t("connected"):t("notconn")}</span>`)}
+  ${tile(t("demo"),`<span class="tag ${d?"sim":"ver"}">${d?t("on"):t("off")}</span>`)}
+  ${tile(t("selected"),S.make?esc(S.make+" "+S.model+" "+S.year):t("none"))}
+  ${tile(t("tabs").dtc,d?`<span class="tag bad">3</span> ${simTag()}`:"—")}</div></div>
+  <div class="box">${d?`${simTag()}<div class="rings">${ring(61,t("soc"),"#2ee59d")}${ring(94,t("soh"),"#3aa0ff")}${ring(82,t("v12"),"#e5233a")}</div>`:`<div class="empty">${t("noReal")}</div>`}</div>
+  <div class="box"><button class="btn" data-go="con">${t("scan")}</button> <button class="btn alt" data-go="rep">${t("gen")}</button></div>`;
+},
+veh(){
+  const yrs=[];for(let y=2026;y>=2010;y--)yrs.push(y);
+  return `<div class="box"><h2>${t("tabs").veh}</h2>
+  <label>${t("make")}</label><select id="make"><option value=""></option>${MAKES.map(m=>`<option ${m===S.make?"selected":""}>${m}</option>`).join("")}</select>
+  <label>${t("model")}</label><input id="model" value="${esc(S.model)}">
+  <label>${t("year")}</label><select id="year"><option value=""></option>${yrs.map(y=>`<option ${String(y)===S.year?"selected":""}>${y}</option>`).join("")}</select>
+  <label>${t("vin")}</label><input id="vin" maxlength="17" autocapitalize="characters" value="${esc(S.vin)}">
+  <button class="btn" id="chk">${t("chk")}</button>
+  ${["admin","technician"].includes(S.apiRole)?`<button class="btn alt" id="save-vehicle">${t("saveVehicle")}</button>`:""}
+  ${S.vinMsg?`<p><span class="tag ${S.vinMsg==="ok"?"ver":"bad"}">${S.vinMsg==="ok"?t("vinOk"):t("vinBad")}</span></p>`:""}
+  ${S.apiMessage?`<p class="sub" role="status">${esc(S.apiMessage)}</p>`:""}
+  <p class="sub">${t("vinNote")}</p></div>
+  <div class="box"><div class="row"><span>${t("selected")}</span><b>${S.make?esc(S.make+" "+S.model+" "+S.year):t("none")}</b></div></div>`;
+},
+con(){
+  const canOperate=["admin","technician"].includes(S.apiRole);
+  const auth=S.apiToken?`<p>${t("signedIn")}: <b>${esc(S.apiRole||"unknown")}</b></p><button class="btn alt" id="api-logout">${t("logout")}</button>`:`<label>${t("email")}</label><input id="api-email" type="email" autocomplete="username"><label>${t("password")}</label><input id="api-password" type="password" autocomplete="current-password"><button class="btn" id="api-login">${t("login")}</button> <button class="btn alt" id="api-register">${t("register")}</button><p class="sub">${t("authHint")}</p>`;
+  const operations=canOperate?`<button class="btn" id="api-connect">${t("connectVci")}</button> <button class="btn alt" id="api-disconnect">${t("disconnectVci")}</button>${S.vehicleId?` <button class="btn" id="api-scan">${t("realScan")}</button>`:`<p class="sub">${t("needVehicle")}</p>`}`:"";
+  const ecuRows=S.realScan?.ecus?.status==="available"?S.realScan.ecus.data.map(e=>`<div class="row"><span>${esc(e.responder_id)}</span><span class="tag ver">${esc(e.protocol)}</span></div>`).join(""):`<div class="empty">${t("noEcus")}</div>`;
+  return `<div class="box"><h2>${t("vci")}</h2><div class="row"><span>PCAN / SocketCAN</span><span class="tag ${S.vciConnected?"ver":"bad"}">${S.vciConnected?t("connected"):t("notconn")}</span></div><p class="sub">${t("gw")}</p>
+  ${auth}<button class="btn alt" id="api-status">${t("checkVci")}</button>${operations}${S.apiMessage?`<p class="sub" role="status">${esc(S.apiMessage)}</p>`:""}</div>
+  <div class="box"><button class="btn" id="scan">${t("scan")}</button>
+  ${S.ecu?(S.demo?`<p>${simTag()} ${t("simEcu")}</p>${["BMS","VCU","MCU / Inverter","OBC","DC-DC","BCM","ABS / ESC"].map(e=>`<div class="row"><span>${e}</span><span class="tag sim">demo</span></div>`).join("")}`:ecuRows):""}</div>
+  ${S.realScan?`<div class="box"><h2>${t("realData")}</h2><pre>${esc(JSON.stringify(S.realScan,null,2))}</pre></div>`:""}`;
+},
+dtc(){
+  if(!S.demo){const result=S.realScan?.stored_dtcs;if(!result)return noReal();if(result.status!=="available")return `<div class="box"><h2>${t("realDtc")}</h2><div class="empty">${esc(result.reason)}</div></div>`;return `<div class="box"><h2>${t("realDtc")}</h2>${result.data.length?result.data.map(x=>`<div class="row"><b>${esc(x.code)}</b><span>${esc(S.lang==="hy"?x.description_hy:x.description_en)}</span></div>`).join(""):`<div class="empty">0 DTC responses</div>`}<p class="sub">${esc(S.realScan.scanned_at||"")}</p></div>`}
+  const d=[["P0A80",{hy:"Հիբրիդային մարտկոցի փաթեթի թուլացում",en:"Replace hybrid battery pack"}],["P0AA6",{hy:"HV մեկուսացման սխալ",en:"HV isolation fault"}],["P0A94",{hy:"DC/DC փոխարկիչի կատարողականություն",en:"DC/DC converter performance"}]];
+  return `<div class="box"><h2>${t("dtcH")} ${simTag()}</h2>${d.map(x=>`<div class="row tap" data-c="${x[0]}" data-d="${esc(x[1][S.lang])}"><b>${x[0]}</b><span>${x[1][S.lang]}</span></div>`).join("")}<p class="sub">${t("dtcNote")}</p></div>`;
+},
+live(){
+  if(!S.demo){const result=S.realScan?.live_data;if(!result)return noReal();if(result.status!=="available")return `<div class="box"><div class="empty">${esc(result.reason)}</div></div>`;return `<div class="box"><h2>${t("realData")}</h2><div class="grid">${result.data.map(x=>`<div class="cell"><div class="sub">${esc(S.lang==="hy"?x.label_hy:x.label_en)}</div><div class="big">${esc(x.value)} ${esc(x.unit)}</div><span class="tag ver">${S.lang==="hy"?"Մեքենայից":"VEHICLE"}</span></div>`).join("")||`<div class="empty">No supported standard PIDs returned.</div>`}</div></div>`}
+  const c=(k,v)=>`<div class="cell"><div class="sub">${t(k)}</div><div class="big">${v}</div></div>`;
+  return `<div class="box"><h2>${t("live")} ${simTag()}</h2><div class="grid">
+  ${c("soc",rnd(60,62).toFixed(1)+" %")}${c("pack",rnd(380,384).toFixed(1)+" V")}${c("cur",rnd(-12,40).toFixed(1)+" A")}
+  ${c("tmp",rnd(24,27).toFixed(1)+" °C")}${c("v12",rnd(13.6,14.1).toFixed(2)+" V")}${c("inv",rnd(38,44).toFixed(0)+" °C")}
+  ${c("chg","0.0 kW")}${c("regen",rnd(0,15).toFixed(1)+" kW")}</div></div>`;
+},
+bat(){
+  if(!S.demo)return noReal();
+  const bars=Array.from({length:12},()=>{const v=rnd(3.68,3.72);return `<i style="height:${((v-3.5)/0.3*100).toFixed(0)}%" title="${v.toFixed(3)} V"></i>`}).join("");
+  return `<div class="warn">${t("hv")}</div><div class="box"><h2>BMS ${simTag()}</h2>
+  <div class="rings">${ring(61,t("soc"),"#2ee59d")}${ring(94,t("soh"),"#3aa0ff")}</div>
+  <label>${t("cells")}</label><div class="cells">${bars}</div></div>`;
+},
+ai(){
+  if(!S.demo)return `<div class="box"><div class="empty">${t("noReal")}</div><p class="sub">${t("aiNote")}</p></div>`;
+  const hy=S.lang==="hy";
+  return `<div class="warn">${t("hv")}</div><div class="box"><h2>${t("aiH")} ${simTag()}</h2>
+  <p><span class="tag ver">${t("conf")}</span> ${hy?"Դեմո ցանկում կա P0AA6 կոդը (սիմուլյացիա)։":"The demo list contains code P0AA6 (simulated)."}</p>
+  <p><span class="tag sim">${t("hyp")}</span> ${hy?"Մեկուսացման անկման հնարավոր պատճառներ՝ խոնավություն HV միակցիչում կամ վնասված մալուխ։ Սա չստուգված ենթադրություն է։":"Possible causes of isolation loss: moisture in an HV connector or a damaged cable. This is an unverified guess."}</p>
+  <h2>${t("nextT")}</h2><p>${hy?"Մեկուսացման դիմադրության չափում ըստ արտադրողի ընթացակարգի՝ միայն որակավորված տեխնիկի կողմից։":"Insulation resistance test per the manufacturer procedure, by a qualified technician only."}</p>
+  <p class="sub">${t("aiNote")}</p></div>`;
+},
+rep(){
+  const txt=S.rep?(S.demo?`EV Smart Diagnostic\n*** ${S.lang==="hy"?"ԴԵՄՈ. ՍԻՄՈՒԼՅԱՑԻԱ":"DEMO. SIMULATED DATA"} ***\n${t("selected")}: ${S.make?S.make+" "+S.model+" "+S.year:t("none")}\nVIN: ${S.vin&&vinValid(S.vin)?S.vin+" ("+(S.lang==="hy"?"չի նույնականացվել VCI-ով":"not read via VCI")+")":"-"}\nDTC: P0A80, P0AA6, P0A94 (demo)\n${new Date().toISOString().slice(0,10)}`:S.realScan?JSON.stringify(S.realScan,null,2):t("noReal")):"";
+  return `<div class="box"><h2>${t("repH")}</h2><button class="btn" id="gen">${t("gen")}</button>${txt?`<pre style="margin-top:12px">${esc(txt)}</pre>`:""}</div>
+  <div class="box"><h2>${t("hist")}</h2><div class="empty">${t("histNone")}</div></div>`;
+},
+cmp(){
+  return `<div class="box"><h2>${t("cmpH")}</h2><p class="sub">${t("cmpNote")}</p><div class="tbl"><table><tr><th>${t("mk")}</th><th>${t("st")}</th></tr>
+  ${MAKES.map(m=>`<tr><td>${m}</td><td><span class="tag sim">${t("unv")}</span></td></tr>`).join("")}</table></div>
+  <p class="sub">${t("stage")} 5 → 6 → 7 → 8</p></div>`;
+}};
+
+function render(){
+  document.documentElement.lang=S.lang;
+  $("tag").textContent=t("tag");
+  $("hy").className=S.lang==="hy"?"on":"";$("en").className=S.lang==="en"?"on":"";
+  const b=$("banner");b.className="banner"+(S.demo?"":" real");
+  b.innerHTML=(S.demo?t("demoOn"):t("demoOff"))+` <button class="btn alt" id="dm" style="margin:0 0 0 8px;padding:4px 10px">${t("demo")}: ${S.demo?t("on"):t("off")}</button>`;
+  $("dm").onclick=()=>{S.demo=!S.demo;S.ecu=false;S.rep=false;render()};
+  $("nav").innerHTML=Object.keys(V).map(k=>`<button data-k="${k}" class="${k===S.tab?"on":""}">${t("tabs")[k]}</button>`).join("");
+  $("nav").querySelectorAll("button").forEach(x=>x.onclick=()=>{S.tab=x.dataset.k;S.anim=true;render()});
+  const vw=$("view");vw.className="";if(S.anim){void vw.offsetWidth;vw.className="in"}S.anim=false;vw.innerHTML=V[S.tab]();
+  const g=id=>$(id);
+  if(g("make"))g("make").onchange=e=>{S.make=e.target.value;render()};
+  if(g("model"))g("model").onchange=e=>{S.model=e.target.value.trim();render()};
+  if(g("year"))g("year").onchange=e=>{S.year=e.target.value;render()};
+  if(g("vin"))g("vin").oninput=e=>{S.vin=e.target.value.toUpperCase().replace(/\s/g,"")};
+  if(g("chk"))g("chk").onclick=()=>{S.vinMsg=vinValid(S.vin)?"ok":"bad";render()};
+  if(g("scan"))g("scan").onclick=()=>{S.ecu=true;render()};
+  if(g("api-login"))g("api-login").onclick=async()=>{try{const result=await apiRequest("/auth/login",{method:"POST",body:JSON.stringify({email:g("api-email").value,password:g("api-password").value})});S.apiToken=result.token;S.apiRole=result.role;sessionStorage.setItem("evsdToken",S.apiToken);sessionStorage.setItem("evsdRole",S.apiRole);S.apiMessage=""}catch(error){S.apiMessage=error.message}render()};
+  if(g("api-register"))g("api-register").onclick=async()=>{try{const result=await apiRequest("/auth/register",{method:"POST",body:JSON.stringify({email:g("api-email").value,password:g("api-password").value})});S.apiMessage=`${t("register")}: ${result.role}`}catch(error){S.apiMessage=error.message}render()};
+  if(g("api-logout"))g("api-logout").onclick=()=>{S.apiToken="";S.apiRole="";S.vciConnected=false;sessionStorage.removeItem("evsdToken");sessionStorage.removeItem("evsdRole");render()};
+  if(g("api-status"))g("api-status").onclick=async()=>{try{const status=await apiRequest("/vci/status");S.vciConnected=status.connected;S.apiMessage=`${status.adapter} · ${status.channel} · ${status.connected?t("connected"):t("notconn")}`}catch(error){S.apiMessage=error.message}render()};
+  if(g("api-connect"))g("api-connect").onclick=async()=>{try{const status=await apiRequest("/vci/connect",{method:"POST"});S.vciConnected=status.connected;S.apiMessage=`${status.adapter} · ${status.channel}`}catch(error){S.vciConnected=false;S.apiMessage=error.message}render()};
+  if(g("api-disconnect"))g("api-disconnect").onclick=async()=>{try{const status=await apiRequest("/vci/disconnect",{method:"POST"});S.vciConnected=status.connected;S.apiMessage=t("notconn")}catch(error){S.apiMessage=error.message}render()};
+  if(g("save-vehicle"))g("save-vehicle").onclick=async()=>{try{const result=await apiRequest("/vehicles",{method:"POST",body:JSON.stringify({make:S.make,model:S.model,year:S.year?Number(S.year):null,vin:S.vin||null})});S.vehicleId=result.id;S.apiMessage=`${t("vehicleSaved")} · #${result.id}`}catch(error){S.apiMessage=error.message}render()};
+  if(g("api-scan"))g("api-scan").onclick=async()=>{try{S.realScan=await apiRequest(`/vehicles/${S.vehicleId}/diagnostics/obd`,{method:"POST"});S.demo=false;S.ecu=true;S.apiMessage=""}catch(error){S.apiMessage=error.message}render()};
+  if(g("gen"))g("gen").onclick=()=>{S.rep=true;render()};
+  document.querySelectorAll(".tap").forEach(x=>x.onclick=()=>modal(x.dataset.c,x.dataset.d));
+  document.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{S.tab=x.dataset.go;S.anim=true;render()});
+}
+$("hy").onclick=()=>{S.lang="hy";render()};
+$("en").onclick=()=>{S.lang="en";render()};
+setInterval(()=>{if(S.demo&&(S.tab==="live"))render()},2000);
+render();
+</script>
+</body>
+</html>
